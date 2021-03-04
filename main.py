@@ -2,13 +2,11 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from src.data.dataset import FacialKeypointsDataset
+from src.data.loader import get_data_loader
 from src.data.transforms import Rescale, RandomCrop, Normalize, ToTensor
 from src.model.models import Net
 
-data_transform = transforms.Compose([Rescale(250),
-                                     RandomCrop(224),
-                                     Normalize(),
-                                     ToTensor()])
+
 """
 
     Convert the face from RGB to grayscale
@@ -17,38 +15,18 @@ data_transform = transforms.Compose([Rescale(250),
     Reshape the numpy image into a torch image.
 
 """
+data_transform = transforms.Compose([Rescale(250),
+                                     RandomCrop(224),
+                                     Normalize(),
+                                     ToTensor()])
 
-# Construct the dataset
-face_dataset = FacialKeypointsDataset(csv_file='data/training_frames_keypoints.csv',
-                                      root_dir='data/training/',
-                                      transform=data_transform)
+loader = get_data_loader(data_type='test', batch_size=10, data_transform=data_transform)
 
-test_dataset = FacialKeypointsDataset(csv_file='data/test_frames_keypoints.csv',
-                                      root_dir='data/test/',
-                                      transform=data_transform)
-
-# print some stats about the dataset
-print('Length of dataset: ', len(face_dataset))
-
-
-# load training data in batches
-batch_size = 10
-
-test_loader = DataLoader(test_dataset,
-                         batch_size=batch_size,
-                         shuffle=True,
-                         num_workers=4)
-
-train_loader = DataLoader(face_dataset,
-                          batch_size=batch_size,
-                          shuffle=True,
-                          num_workers=4)
-
-for sample in test_loader:
+for sample in loader:
     net = Net()
     image = sample['image']
     print(image.shape)
     print(sample['keypoints'].shape)
-    # prediction = net(image)
-    # print(prediction.shape)
+    prediction = net(image)
+    print(prediction.shape)
     break
