@@ -1,4 +1,3 @@
-# from torch.distributions import transforms
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
@@ -22,7 +21,7 @@ data_transform = transforms.Compose([Rescale(250),
 # Construct the dataset
 face_dataset = FacialKeypointsDataset(csv_file='data/training_frames_keypoints.csv',
                                       root_dir='data/training/',
-                                      transform=None)
+                                      transform=data_transform)
 
 test_dataset = FacialKeypointsDataset(csv_file='data/test_frames_keypoints.csv',
                                       root_dir='data/test/',
@@ -50,6 +49,6 @@ for sample in test_loader:
     image = sample['image']
     print(image.shape)
     print(sample['keypoints'].shape)
-    prediction = net(image)
-    print(prediction.shape)
+    # prediction = net(image)
+    # print(prediction.shape)
     break
