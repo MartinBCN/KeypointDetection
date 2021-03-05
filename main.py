@@ -1,3 +1,5 @@
+import os
+
 from torch import optim
 from torch.nn import MSELoss, L1Loss
 from torchvision import transforms
@@ -33,17 +35,18 @@ loader['validation'] = get_data_loader(data_type='test', batch_size=10, data_tra
 loader['train'] = get_data_loader(data_type='training', batch_size=10, data_transform=data_transform)
 
 model = KeypointDetector()
-model.set_criterion(L1Loss())
-model.set_optimizer(optim.SGD, dict(lr=0.001, momentum=0.9))
+model.set_criterion('l1')
+model.set_optimizer('sgd', dict(lr=0.001, momentum=0.9))
 
-model.train(loader, 2)
+# model.train(loader, 2)
 
+model_path = os.environ.get('MODEL_PATH', 'models')
+fn = f'{model_path}/test1.pt'
+model.save(fn)
 
-# for sample in loader:
-#     net = Net()
-#     image = sample['image']
-#     print(image.shape)
-#     print(sample['keypoints'].shape)
-#     prediction = net(image)
-#     print(prediction.shape)
-#     break
+loaded_model = model.load(fn)
+
+for sample in loader['validation']:
+    output = loaded_model.model(sample['image'])
+    print(output.shape)
+    break
