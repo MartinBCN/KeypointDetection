@@ -1,29 +1,32 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, Callable
 import torch
 from torch import nn
 import torch.optim as optim
+from torch.nn import Module
 
 
 class TorchWrapper:
-    def __init__(self, name: str):
-        self.name = name
-        if self.model is None:
-            self.model = nn.Module()
+    def __init__(self):
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.model = None
+
+        self.criterion = None
         self.optimizer = None
 
         self.training_log = {}
 
-    def set_optimizer(self):
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.001, momentum=0.9)
+    def set_criterion(self, criterion: Module):
+        self.criterion = criterion
+
+    def set_optimizer(self, optimizer: Callable, hyper_parameter: dict = {}):
+        self.optimizer = optimizer(self.model.parameters(), **hyper_parameter)
 
     @classmethod
-    def load(cls, filepath: Union[str, Path], name: str = None):
+    def load(cls, filepath: Union[str, Path]):
         state = torch.load(filepath)
 
-        new = cls(name)
+        new = cls()
 
         new.set_optimizer()
 

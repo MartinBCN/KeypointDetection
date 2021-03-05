@@ -1,11 +1,19 @@
-from torch.utils.data import DataLoader
+from torch import optim
+from torch.nn import MSELoss, L1Loss
 from torchvision import transforms
 
-from src.data.dataset import FacialKeypointsDataset
 from src.data.loader import get_data_loader
 from src.data.transforms import Rescale, RandomCrop, Normalize, ToTensor
-from src.model.models import Net
+from src.model.keypoint_detector import KeypointDetector
 
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 """
 
@@ -20,13 +28,22 @@ data_transform = transforms.Compose([Rescale(250),
                                      Normalize(),
                                      ToTensor()])
 
-loader = get_data_loader(data_type='test', batch_size=10, data_transform=data_transform)
+loader = dict()
+loader['validation'] = get_data_loader(data_type='test', batch_size=10, data_transform=data_transform)
+loader['train'] = get_data_loader(data_type='training', batch_size=10, data_transform=data_transform)
 
-for sample in loader:
-    net = Net()
-    image = sample['image']
-    print(image.shape)
-    print(sample['keypoints'].shape)
-    prediction = net(image)
-    print(prediction.shape)
-    break
+model = KeypointDetector()
+model.set_criterion(L1Loss())
+model.set_optimizer(optim.SGD, dict(lr=0.001, momentum=0.9))
+
+model.train(loader, 2)
+
+
+# for sample in loader:
+#     net = Net()
+#     image = sample['image']
+#     print(image.shape)
+#     print(sample['keypoints'].shape)
+#     prediction = net(image)
+#     print(prediction.shape)
+#     break

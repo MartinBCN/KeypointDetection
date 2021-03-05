@@ -1,5 +1,5 @@
 from typing import Callable
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from src.data.dataset import FacialKeypointsDataset
 
 
