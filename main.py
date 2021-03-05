@@ -31,14 +31,21 @@ data_transform = transforms.Compose([Rescale(250),
                                      ToTensor()])
 
 loader = dict()
-loader['validation'] = get_data_loader(data_type='test', batch_size=10, data_transform=data_transform)
-loader['train'] = get_data_loader(data_type='training', batch_size=10, data_transform=data_transform)
+fraction = 0.05
+loader['validation'] = get_data_loader(data_type='test', batch_size=10, data_transform=data_transform,
+                                       fraction=fraction)
+loader['train'] = get_data_loader(data_type='training', batch_size=10, data_transform=data_transform,
+                                  fraction=fraction)
 
 model = KeypointDetector()
 model.set_criterion('l1')
 model.set_optimizer('sgd', dict(lr=0.001, momentum=0.9))
 
-# model.train(loader, 2)
+model.train(loader, 2)
+
+figure_dir = os.environ.get('FIG_PATH', 'figures')
+fn = f'{figure_dir}/test.png'
+model.plot(fn)
 
 model_path = os.environ.get('MODEL_PATH', 'models')
 fn = f'{model_path}/test1.pt'

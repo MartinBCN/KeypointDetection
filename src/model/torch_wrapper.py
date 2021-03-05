@@ -4,6 +4,7 @@ from typing import Union
 import torch
 from torch.nn import Module, L1Loss
 from torch.optim import Adam, SGD
+import matplotlib.pyplot as plt
 
 
 class TorchWrapper(ABC):
@@ -18,7 +19,9 @@ class TorchWrapper(ABC):
         self.__optimizer_choice = None
         self.hyper_parameter = {}
 
-        self.training_log = {}
+        self.training_log = {'train': {'batch_loss': [], 'epoch_loss': [], 'batch_accuracy': [], 'epoch_accuracy': []},
+                             'validation': {'batch_loss': [], 'epoch_loss': [], 'batch_accuracy': [],
+                                            'epoch_accuracy': []}}
 
     def set_criterion(self, criterion: str):
         self.criterion = self.criterions[criterion]()
@@ -55,3 +58,28 @@ class TorchWrapper(ABC):
 
     def get_inference_model(self):
         return self.model
+
+    def plot(self, filepath: Union[str, Path] = None):
+
+        fig, axes = plt.subplots(2, 2)
+
+        axes[0, 0].plot(self.training_log['train']['batch_loss'], label='Train')
+        axes[0, 0].plot(self.training_log['validation']['batch_loss'], label='Validation')
+        axes[0, 0].legend(title='Batch Loss')
+
+        axes[0, 1].plot(self.training_log['train']['epoch_loss'], label='Train')
+        axes[0, 1].plot(self.training_log['validation']['epoch_loss'], label='Validation')
+        axes[0, 1].legend(title='Epoch Loss')
+
+        axes[1, 0].plot(self.training_log['train']['batch_accuracy'], label='Train')
+        axes[1, 0].plot(self.training_log['validation']['batch_accuracy'], label='Validation')
+        axes[1, 0].legend(title='Batch accuracy')
+
+        axes[1, 1].plot(self.training_log['train']['epoch_accuracy'], label='Train')
+        axes[1, 1].plot(self.training_log['validation']['epoch_accuracy'], label='Validation')
+        axes[1, 1].legend(title='Epoch accuracy')
+
+        if filepath is None:
+            plt.show()
+        else:
+            plt.savefig(filepath)
