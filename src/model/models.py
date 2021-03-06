@@ -50,3 +50,6 @@ if __name__ == '__main__':
     t = torch.rand([20, 1, 224, 224])
     print(t.shape)
     print(net(t).shape)
+
+    print(int(10/3 * 16 * 224 / 3 * 224 / 4 / 9))
+    print(46656/16)
