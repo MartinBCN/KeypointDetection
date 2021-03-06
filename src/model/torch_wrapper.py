@@ -5,6 +5,7 @@ import torch
 from torch.nn import Module, L1Loss
 from torch.optim import Adam, SGD
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 
 class TorchWrapper(ABC):
@@ -61,7 +62,7 @@ class TorchWrapper(ABC):
 
     def plot(self, filepath: Union[str, Path] = None):
 
-        fig, axes = plt.subplots(2, 2)
+        fig, axes = plt.subplots(2, 2, figsize=(20, 10))
 
         axes[0, 0].plot(self.training_log['train']['batch_loss'], label='Train')
         axes[0, 0].plot(self.training_log['validation']['batch_loss'], label='Validation')

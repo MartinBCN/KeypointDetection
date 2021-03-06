@@ -33,15 +33,10 @@ data_transform = transforms.Compose([Rescale(250),
                                      Normalize(),
                                      ToTensor()])
 
-# loader = dict()
 fraction = 0.05
 batch_size = 5
 loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size, data_transform=data_transform,
                                      fraction=fraction) for data_type in ['train', 'validation']}
-# loader['validation'] = get_data_loader(data_type='validation', batch_size=5, data_transform=data_transform,
-#                                        fraction=fraction)
-# loader['train'] = get_data_loader(data_type='training', batch_size=5, data_transform=data_transform,
-#                                   fraction=fraction)
 
 # --- Setup Model ---
 model = KeypointDetector()
@@ -56,15 +51,13 @@ figure_dir = os.environ.get('FIG_PATH', 'figures')
 fn = f'{figure_dir}/test.png'
 model.plot(fn)
 
-# # --- Store Model ---
-# model_path = os.environ.get('MODEL_PATH', 'models')
-# fn = f'{model_path}/test1.pt'
-# model.save(fn)
-#
-# loaded_model = model.load(fn)
+# --- Store Model ---
+model_path = os.environ.get('MODEL_PATH', 'models')
+fn = f'{model_path}/test1.pt'
+model.save(fn)
 
-for sample in loader['validation']:
-    image = sample['image']
-    keypoints = sample['keypoints']
-    visualise_batch(image, keypoints)
-    break
+sample = next(iter(loader['validation']))
+image = sample['image']
+keypoints = sample['keypoints']
+prediction = model.model(image)
+visualise_batch(image, keypoints, prediction)

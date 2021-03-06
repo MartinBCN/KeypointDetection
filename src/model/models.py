@@ -19,7 +19,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.main = nn.Sequential(
+        self.convolution_layers = nn.Sequential(
             nn.Conv2d(1, 10, 3),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
@@ -28,17 +28,26 @@ class Net(nn.Module):
             nn.Conv2d(10, 16, 3),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            nn.Dropout(0.3),
+            nn.Dropout(0.3)
+        )
 
-            Flatten(),
-            nn.Linear(46656, 2 * 68),
-
-            ToKeyPoints()
+        self.linear_layers = nn.Sequential(
+            nn.Linear(46656, 1024),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(1024, 2 * 68),
+            nn.Dropout()
         )
 
     def forward(self, x):
 
-        return self.main(x)
+        batch_size = x.shape[0]
+        x = self.convolution_layers(x)
+        x = x.view(batch_size, -1)
+        x = self.linear_layers(x)
+        x = x.view(batch_size, -1, 2)
+
+        return x
 
 
 if __name__ == '__main__':
