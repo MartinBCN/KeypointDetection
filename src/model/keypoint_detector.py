@@ -1,6 +1,7 @@
 from datetime import datetime
 import numpy as np
 import torch
+from sklearn.metrics import r2_score
 from torch.nn import Module
 from torch.utils.data import DataLoader
 from src.model.models import Net
@@ -69,25 +70,23 @@ class KeypointDetector(TorchWrapper):
 
                     logger.info(f'Current Mean Epoch Loss: {epoch_loss / (i + 1)}')
 
-                    # epoch_predicted_labels.append(self.model.predict(image).detach().cpu().numpy())
-                    # epoch_ground_truth.append(label.detach().cpu().numpy())
+                    # Batch Accuracy
+                    batch_predicted_labels = outputs.detach().cpu().numpy().reshape(-1)
+                    batch_true_labels = label.detach().cpu().numpy().reshape(-1)
+                    epoch_predicted_labels.append(batch_predicted_labels)
+                    epoch_ground_truth.append(batch_true_labels)
 
                     if phase == 'train':
                         loss.backward()
                         self.optimizer.step()
 
-                    if 'batch_loss' in self.training_log[phase].keys():
-                        self.training_log[phase]['batch_loss'].append(loss.detach().cpu().numpy())
-                    else:
-                        self.training_log[phase]['batch_loss'] = [loss.detach().cpu().numpy()]
+                    self.training_log[phase]['batch_loss'].append(loss.detach().cpu().numpy())
+                    accuracy = r2_score(batch_true_labels, batch_predicted_labels)
+                    self.training_log[phase]['batch_accuracy'].append(accuracy)
 
                 # Log accuracy
-                # accuracy = (np.concatenate(epoch_ground_truth) == np.concatenate(epoch_predicted_labels)).mean()
-                accuracy = 0
-                if 'accuracy' in self.training_log[phase].keys():
-                    self.training_log[phase]['accuracy'].append(accuracy)
-                else:
-                    self.training_log[phase]['accuracy'] = [accuracy]
+                accuracy = r2_score(np.concatenate(epoch_ground_truth), np.concatenate(epoch_predicted_labels))
+                self.training_log[phase]['epoch_accuracy'].append(accuracy)
 
                 # Log Epoch Loss
                 if 'epoch_loss' in self.training_log[phase].keys():

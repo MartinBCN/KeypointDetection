@@ -52,10 +52,10 @@ model.set_optimizer('sgd', dict(lr=0.001, momentum=0.9))
 model.train(loader, 2)
 
 # --- Plot Loss ---
-# figure_dir = os.environ.get('FIG_PATH', 'figures')
-# fn = f'{figure_dir}/test.png'
-# model.plot(fn)
-#
+figure_dir = os.environ.get('FIG_PATH', 'figures')
+fn = f'{figure_dir}/test.png'
+model.plot(fn)
+
 # # --- Store Model ---
 # model_path = os.environ.get('MODEL_PATH', 'models')
 # fn = f'{model_path}/test1.pt'
