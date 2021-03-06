@@ -33,7 +33,7 @@ data_transform = transforms.Compose([Rescale(250),
                                      Normalize(),
                                      ToTensor()])
 
-fraction = 0.05
+fraction = None
 batch_size = 5
 loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size, data_transform=data_transform,
                                      fraction=fraction) for data_type in ['train', 'validation']}
@@ -44,7 +44,7 @@ model.set_criterion('l1')
 model.set_optimizer('sgd', dict(lr=0.001, momentum=0.9))
 
 # --- Training ---
-model.train(loader, 2)
+model.train(loader, 5)
 
 # --- Plot Loss ---
 figure_dir = os.environ.get('FIG_PATH', 'figures')
