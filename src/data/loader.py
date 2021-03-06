@@ -1,7 +1,7 @@
 import os
 from typing import Callable
 from torch.utils.data import DataLoader, random_split
-from src.data.dataset import FacialKeypointsDataset
+from data.dataset import FacialKeypointsDataset
 
 
 def get_data_loader(data_type: str, batch_size: int, data_transform: Callable, fraction: float = None) -> DataLoader:

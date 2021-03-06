@@ -71,7 +71,7 @@ def build_tabs():
 
     tab_batch_analysis = dcc.Tab(
                         id="tab-batch-analysis",
-                        label="Batch Analysis2",
+                        label="Batch Analysis",
                         value="tab_batch_analysis",
                         className="custom-tab",
                         selected_className="custom-tab--selected",

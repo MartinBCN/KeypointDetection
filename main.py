@@ -1,9 +1,9 @@
 import os
 
-from src.data.loader import get_data_loader
-from src.data.transforms import Rescale, RandomCrop, Normalize, ToTensor
-from src.data.visualise import visualise_batch
-from src.model.keypoint_detector import KeypointDetector
+from data.loader import get_data_loader
+from data.transforms import Rescale, RandomCrop, Normalize, ToTensor
+from data.visualise import visualise_batch
+from model.keypoint_detector import KeypointDetector
 
 from torchvision import transforms
 import torch

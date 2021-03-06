@@ -8,8 +8,8 @@ COPY requirements.txt .
 
 RUN pip install -r /requirements.txt
 
-COPY ./data /data
-COPY ./models /models
+COPY ./data $DATA_PATH
+COPY ./models $MODEL_PATH
 
 RUN mkdir /app
 COPY ./src /app

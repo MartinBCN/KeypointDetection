@@ -4,8 +4,8 @@ import torch
 from sklearn.metrics import r2_score
 from torch.nn import Module
 from torch.utils.data import DataLoader
-from src.model.models import Net
-from src.model.torch_wrapper import TorchWrapper
+from model.models import Net
+from model.torch_wrapper import TorchWrapper
 import logging
 logger = logging.getLogger()
 
