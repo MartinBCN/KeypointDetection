@@ -1,0 +1,12 @@
+dash==1.19.0
+dash-bootstrap-components==0.11.3
+Flask==1.1.2
+matplotlib==3.3.4
+numpy==1.19.5
+opencv-python==4.5.1.48
+pandas==1.1.5
+plotly==4.14.3
+scikit-learn==0.24.1
+torch==1.7.1
+torchvision==0.8.2
+uvicorn==0.13.4

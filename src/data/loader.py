@@ -1,3 +1,4 @@
+import os
 from typing import Callable
 from torch.utils.data import DataLoader, random_split
 from src.data.dataset import FacialKeypointsDataset
@@ -21,8 +22,9 @@ def get_data_loader(data_type: str, batch_size: int, data_transform: Callable, f
     subdirectories = {'train': 'training', 'validation': 'training', 'test': 'test'}
     subdirectory = subdirectories[data_type]
 
-    dataset = FacialKeypointsDataset(csv_file=f'data/{subdirectory}_frames_keypoints.csv',
-                                     root_dir=f'data/{subdirectory}/',
+    data_path = os.environ.get('DATA_PATH', 'data')
+    dataset = FacialKeypointsDataset(csv_file=f'{data_path}/{subdirectory}_frames_keypoints.csv',
+                                     root_dir=f'{data_path}/{subdirectory}/',
                                      transform=data_transform)
 
     if data_type in ['train', 'validation']:

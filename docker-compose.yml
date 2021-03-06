@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8500:8500"
+    volumes:
+      - ./data:/data
+      - ./figures:/figures
+      - ./models:/models
+
