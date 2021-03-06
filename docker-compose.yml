@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8500:8500"
+      - "8050:8050"
     volumes:
       - ./data:/data
       - ./figures:/figures
       - ./models:/models
+      - ./src:/app
 

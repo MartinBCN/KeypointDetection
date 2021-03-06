@@ -4,13 +4,17 @@ ENV DATA_PATH=/data
 ENV FIG_PATH=/figures
 ENV MODEL_PATH=/models
 
-
 COPY requirements.txt .
 
 RUN pip install -r /requirements.txt
 
-ADD src .
+COPY ./data /data
+COPY ./models /models
 
-EXPOSE 8000
+RUN mkdir /app
+COPY ./src /app
+WORKDIR /app
 
-CMD ["uvicorn", "model_api:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8050
+
+CMD ["python", "dashboard.py"]
