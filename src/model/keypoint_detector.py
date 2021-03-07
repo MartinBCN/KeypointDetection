@@ -2,10 +2,10 @@ from datetime import datetime
 import numpy as np
 import torch
 from sklearn.metrics import r2_score
-from torch.nn import Module
 from torch.utils.data import DataLoader
-from model.models import Net
+from model.models import Net3Conv, Net4ConvV2, Net4Conv
 from model.torch_wrapper import TorchWrapper
+from datetime import datetime
 import logging
 logger = logging.getLogger()
 
@@ -14,7 +14,7 @@ class KeypointDetector(TorchWrapper):
 
     def __init__(self):
         super().__init__()
-        self.model = Net()
+        self.model = Net4Conv()
 
     def evaluate(self, data_loader: DataLoader):
 
@@ -56,8 +56,10 @@ class KeypointDetector(TorchWrapper):
                 epoch_loss = 0
                 epoch_ground_truth = []
                 epoch_predicted_labels = []
+                batch_time = []
 
                 for i, sample in enumerate(data_loader[phase]):
+                    start_batch = datetime.now()
                     image = sample['image']
                     label = sample['keypoints']
                     if phase == 'train':
@@ -79,15 +81,21 @@ class KeypointDetector(TorchWrapper):
                         loss.backward()
                         self.optimizer.step()
 
+                    # Permanent Value Tracking
                     self.training_log[phase]['batch_loss'].append(loss.detach().cpu().numpy())
                     accuracy = r2_score(batch_true_labels, batch_predicted_labels)
                     self.training_log[phase]['batch_accuracy'].append(accuracy)
 
-                    log_string = f'Epoch {epoch}/{epochs}, Batch {i+1}/{len(data_loader[phase])}'
+                    # Regular Logging
+                    log_string = f'Epoch {epoch + 1}/{epochs}, Batch {i+1}/{len(data_loader[phase])}'
                     log_string += f', Current Mean Epoch Loss: {epoch_loss / (i + 1):.2f}'
                     current_accuracy = r2_score(np.concatenate(epoch_ground_truth),
                                                 np.concatenate(epoch_predicted_labels))
-                    log_string += f'|Accuracy: {current_accuracy:.2f}'
+                    log_string += f' |Accuracy: {current_accuracy:.2f}'
+                    delta = (datetime.now() - start_batch).microseconds/image.shape[0]/1000
+                    batch_time.append(delta)
+                    log_string += f' | Time/image: {np.mean(batch_time):.2f}ms '
+
                     logger.info(log_string)
 
                 # Log Epoch (accuracy and loss)
@@ -97,4 +105,3 @@ class KeypointDetector(TorchWrapper):
 
             if self.scheduler is not None:
                 self.scheduler.step()
-

@@ -34,7 +34,7 @@ data_transform = transforms.Compose([Rescale(250),
                                      ToTensor()])
 
 fraction = None
-batch_size = 5
+batch_size = 10
 loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size, data_transform=data_transform,
                                      fraction=fraction) for data_type in ['train', 'validation']}
 
@@ -42,12 +42,12 @@ loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size,
 model = KeypointDetector()
 model.set_criterion('mse')
 model.set_optimizer('adam', dict(lr=0.001))
-model.set_scheduler('steplr', dict(step_size=1, gamma=0.1))
+model.set_scheduler('steplr', dict(step_size=10, gamma=0.8))
 
-name = 'adam'
+name = 'adam_4conv_1lin_100'
 
 # --- Training ---
-model.train(loader, 5)
+model.train(loader, 100)
 
 # --- Plot Loss ---
 figure_dir = os.environ.get('FIG_PATH', 'figures')
