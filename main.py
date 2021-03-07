@@ -40,20 +40,25 @@ loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size,
 
 # --- Setup Model ---
 model = KeypointDetector()
-model.set_criterion('l1')
-model.set_optimizer('sgd', dict(lr=0.001, momentum=0.9))
+model.set_criterion('mse')
+model.set_optimizer('adam', dict(lr=0.001))
+model.set_scheduler('steplr', dict(step_size=1, gamma=0.1))
+
+name = 'adam'
 
 # --- Training ---
 model.train(loader, 5)
 
 # --- Plot Loss ---
 figure_dir = os.environ.get('FIG_PATH', 'figures')
-fn = f'{figure_dir}/test.png'
+fn = f'{figure_dir}/{name}.png'
 model.plot(fn)
+
+print(model.training_log['learning_rate'])
 
 # --- Store Model ---
 model_path = os.environ.get('MODEL_PATH', 'models')
-fn = f'{model_path}/test1.pt'
+fn = f'{model_path}/standard_parameter.pt'
 model.save(fn)
 
 sample = next(iter(loader['validation']))

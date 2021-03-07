@@ -2,15 +2,18 @@ from abc import ABC
 from pathlib import Path
 from typing import Union
 import torch
-from torch.nn import Module, L1Loss
+from torch.nn import Module, L1Loss, MSELoss
 from torch.optim import Adam, SGD
 import matplotlib.pyplot as plt
+from torch.optim.lr_scheduler import StepLR
+
 plt.style.use('ggplot')
 
 
 class TorchWrapper(ABC):
     optimizers = {'adam': Adam, 'sgd': SGD}
-    criterions = {'l1': L1Loss}
+    criterions = {'l1': L1Loss, 'mse': MSELoss}
+    scheduler_choices = {'steplr': StepLR}
 
     def __init__(self):
 
@@ -18,11 +21,14 @@ class TorchWrapper(ABC):
         self.criterion = None
         self.optimizer = None
         self.__optimizer_choice = None
+        self.scheduler = None
+        self.scheduler_parameter = None
         self.hyper_parameter = {}
 
         self.training_log = {'train': {'batch_loss': [], 'epoch_loss': [], 'batch_accuracy': [], 'epoch_accuracy': []},
                              'validation': {'batch_loss': [], 'epoch_loss': [], 'batch_accuracy': [],
-                                            'epoch_accuracy': []}}
+                                            'epoch_accuracy': []},
+                             'learning_rate': []}
 
     def set_criterion(self, criterion: str):
         self.criterion = self.criterions[criterion]()
@@ -31,6 +37,14 @@ class TorchWrapper(ABC):
         self.optimizer = self.optimizers[optimizer](self.model.parameters(), **hyper_parameter)
         self.hyper_parameter = hyper_parameter
         self.__optimizer_choice = optimizer
+
+    def set_scheduler(self, scheduler: str, params: dict):
+        self.scheduler = self.scheduler_choices[scheduler](self.optimizer, **params)
+        self.scheduler_parameter = params
+
+    def get_lr(self):
+        for param_group in self.optimizer.param_groups:
+            return param_group['lr']
 
     @classmethod
     def load(cls, filepath: Union[str, Path]):
