@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from sklearn.metrics import r2_score
 from torch.utils.data import DataLoader
-from model.models import Net3Conv, Net4ConvV2, Net4Conv, Net5Conv, Net5ConvV2, Net, NetFinal
+from model.models import Net
 from model.torch_wrapper import TorchWrapper
 from datetime import datetime
 import logging
@@ -14,7 +14,8 @@ class KeypointDetector(TorchWrapper):
 
     def __init__(self):
         super().__init__()
-        self.model = NetFinal()
+        self.model = Net(image_size=224, filter_size= [5, 5, 3, 3, 1], feature_maps=[32, 64, 128, 256, 512],
+                         second_linear_layer=True)
 
     def evaluate(self, data_loader: DataLoader):
 
