@@ -42,12 +42,12 @@ loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size,
 model = KeypointDetector()
 model.set_criterion('mse')
 model.set_optimizer('adam', dict(lr=0.001))
-model.set_scheduler('steplr', dict(step_size=10, gamma=0.8))
+model.set_scheduler('steplr', dict(step_size=1, gamma=0.5))
 
-name = 'adam_4conv_1lin_100'
+name = 'solution_5'
 
 # --- Training ---
-model.train(loader, 100)
+model.train(loader, 10)
 
 # --- Plot Loss ---
 figure_dir = os.environ.get('FIG_PATH', 'figures')
