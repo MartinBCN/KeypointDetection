@@ -1,6 +1,11 @@
+from random import random
+
 import torch
 import numpy as np
 import cv2
+import torchvision.transforms.functional as tf
+
+from data.dataset import FacialKeypointsDataset
 
 
 class Normalize(object):
@@ -110,3 +115,41 @@ class ToTensor(object):
 
         return {'image': torch.from_numpy(image),
                 'keypoints': torch.from_numpy(key_pts)}
+
+
+class VerticalFlip(object):
+
+    def __call__(self, sample):
+        image, key_pts = sample['image'], sample['keypoints']
+
+        # Random horizontal flipping
+        if random() > 0.5:
+            image = tf.vflip(image)
+            key_pts[:, 1] = 0.5 - key_pts[:, 1]
+
+        return {'image': image, 'keypoints': key_pts}
+
+
+if __name__ == '__main__':
+    from torchvision import transforms
+    import matplotlib.pyplot as plt
+
+    data_path = '/home/martin/Programming/Python/Udacity/Computer Vision/Facial Keypoint Recognition/data'
+    data_transform = transforms.Compose([Rescale(250),
+                                         RandomCrop(224),
+                                         Normalize(),
+                                         ToTensor(),
+                                         VerticalFlip()])
+    dataset = FacialKeypointsDataset(csv_file=f'{data_path}/training_frames_keypoints.csv',
+                                     root_dir=f'{data_path}/training/',
+                                     transform=data_transform)
+
+    sample = dataset[0]
+
+    image = sample['image']
+    kp = sample['keypoints']
+    kp = kp * 50 + 100
+
+    plt.scatter(kp[:, 0], kp[:, 1], s=20, marker='.', c='m')
+    plt.imshow(image.numpy()[0])
+    plt.show()

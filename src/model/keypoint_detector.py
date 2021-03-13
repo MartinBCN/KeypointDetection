@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from sklearn.metrics import r2_score
 from torch.utils.data import DataLoader
-from model.models import Net
+from model.models import Net, Solution, Final
 from model.torch_wrapper import TorchWrapper
 from datetime import datetime
 import logging
@@ -14,8 +14,12 @@ class KeypointDetector(TorchWrapper):
 
     def __init__(self):
         super().__init__()
-        self.model = Net(image_size=224, filter_size= [5, 5, 3, 3, 1], feature_maps=[32, 64, 128, 256, 512],
+        self.model = Net(image_size=224, filter_size=[3, 3, 3, 3, 3, 3], feature_maps=[64, 128, 256, 512, 1024, 2056],
                          second_linear_layer=True)
+        # self.model = Net(image_size=224, filter_size=[5, 3, 3, 3, 1], feature_maps=[32, 64, 128, 256, 512],
+        #                  second_linear_layer=True)
+        # self.model = Solution()
+        # self.model = Final()
 
     def evaluate(self, data_loader: DataLoader):
 
@@ -51,6 +55,11 @@ class KeypointDetector(TorchWrapper):
                 logger.info(f'Phase {phase}')
                 logger.info(('-' * 125))
 
+                if phase == 'train':
+                    self.model.train()
+                else:
+                    self.model.eval()
+
                 if phase not in self.training_log.keys():
                     self.training_log[phase] = {'epoch_loss': [], 'batch_loss': []}
 
@@ -83,16 +92,19 @@ class KeypointDetector(TorchWrapper):
                         self.optimizer.step()
 
                     # Permanent Value Tracking
-                    self.training_log[phase]['batch_loss'].append(loss.detach().cpu().numpy())
+                    batch_loss = loss.detach().cpu().numpy()
+                    self.training_log[phase]['batch_loss'].append(batch_loss)
                     accuracy = r2_score(batch_true_labels, batch_predicted_labels)
                     self.training_log[phase]['batch_accuracy'].append(accuracy)
 
                     # Regular Logging
                     log_string = f'Epoch {epoch + 1}/{epochs}, Batch {i+1}/{len(data_loader[phase])}'
-                    log_string += f', Current Mean Epoch Loss: {epoch_loss / (i + 1):.2f}'
+                    log_string += f', Mean Epoch Loss: {epoch_loss / (i + 1):.2f}'
+                    log_string += f'| Batch Loss: {batch_loss:.2f}'
                     current_accuracy = r2_score(np.concatenate(epoch_ground_truth),
                                                 np.concatenate(epoch_predicted_labels))
-                    log_string += f' |Accuracy: {current_accuracy:.2f}'
+                    log_string += f' |Epoch Accuracy: {current_accuracy:.2f}'
+                    log_string += f'| Batch Accuracy: {accuracy:.2f}'
                     delta = (datetime.now() - start_batch).microseconds/image.shape[0]/1000
                     batch_time.append(delta)
                     log_string += f' | Time/image: {np.mean(batch_time):.2f}ms '

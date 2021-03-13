@@ -1,7 +1,7 @@
 import os
 
 from data.loader import get_data_loader
-from data.transforms import Rescale, RandomCrop, Normalize, ToTensor
+from data.transforms import Rescale, RandomCrop, Normalize, ToTensor, VerticalFlip
 from data.visualise import visualise_batch
 from model.keypoint_detector import KeypointDetector
 
@@ -31,10 +31,12 @@ logger.addHandler(ch)
 data_transform = transforms.Compose([Rescale(250),
                                      RandomCrop(224),
                                      Normalize(),
-                                     ToTensor()])
+                                     ToTensor(),
+                                     # VerticalFlip()
+                                     ])
 
 fraction = None
-batch_size = 10
+batch_size = 20
 loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size, data_transform=data_transform,
                                      fraction=fraction) for data_type in ['train', 'validation']}
 
@@ -42,12 +44,13 @@ loader = {data_type: get_data_loader(data_type=data_type, batch_size=batch_size,
 model = KeypointDetector()
 model.set_criterion('mse')
 model.set_optimizer('adam', dict(lr=0.001))
-model.set_scheduler('steplr', dict(step_size=1, gamma=0.5))
+# model.set_optimizer('sgd', dict(lr=0.1))
+# model.set_scheduler('steplr', dict(step_size=1, gamma=0.5))
 
 name = 'solution_5'
 
 # --- Training ---
-model.train(loader, 10)
+model.train(loader, 5)
 
 # --- Plot Loss ---
 figure_dir = os.environ.get('FIG_PATH', 'figures')
